@@ -6,3 +6,9 @@ whitenoise>=6.6
 
 # Local dev
 pre-commit
+
+# Testing
+
+pytest-django
+pytest-cov
+pytest-xdist
