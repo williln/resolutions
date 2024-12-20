@@ -25,7 +25,7 @@ SECRET_KEY = "django-insecure-rwn$_ni$g1!p6-z%venf6#r=o_!zz*2%%3qqi74fx93i=*i=xc
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["resolutions.fly.dev", "localhost", "127.0.0.1"]
 
 
 # Application definition
