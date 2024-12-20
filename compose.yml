@@ -12,7 +12,9 @@ services:
       retries: 5
 
   web:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
     command: python -m manage runserver 0.0.0.0:8000
     volumes:
       - .:/code

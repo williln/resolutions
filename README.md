@@ -23,156 +23,132 @@ A simple Django web app for tracking New Year's resolutions. Built with Django +
   - [ ] Do the math for whether I am on track for the `Resolution`s with a goal amount.
   - [ ] For non-goal `Resolution`s, show the recent events, maybe some useful totals or averages.
 
-## Prerequisites
+## Development Setup
 
+### Prerequisites
 - Python 3.12
 - Docker and Docker Compose
-- [just](https://github.com/casey/just) command runner (optional but recommended)
+- [just](https://github.com/casey/just?tab=readme-ov-file#installation) command runner (recommended)
 
-### Installing just
+### Local Setup
 
-See the [just installation instructions](https://github.com/casey/just?tab=readme-ov-file#installation).
-
-## Local Development Setup
-
-1. Clone the repository:
+1. Clone and prepare environment:
 ```bash
 git clone https://github.com/yourusername/resolution.git
 cd resolution-tracker
-```
-
-2. Set up your environment:
-```bash
-# Copy environment file
 cp .env-dist .env
-
-# Copy compose override file
 cp compose.override.yml-dist compose.override.yml
 ```
 
-3. Build and start the services:
-
-Using just:
+2. Start development environment:
 ```bash
-# Build the services
 just build
-
-# Start the services
 just up
-```
-
-Or using Docker Compose directly:
-```bash
-docker compose build
-docker compose up
-```
-
-4. Run initial migrations:
-```bash
 just migrate
-```
-
-5. Create a superuser (optional):
-```bash
 just createsuperuser
 ```
 
-The application should now be running at http://localhost:8000
+The app will be available at http://localhost:8000
 
-## Development Commands
+### Development Commands
 
-Using just:
+Using just (recommended):
 ```bash
-# Start services
-just up
-
-# Start services in detached mode
-just up -d
-
-# Run migrations
-just migrate
-
-# Create new migrations
-just makemigrations
-
-# Run tests
-just test
-
-# Open a shell in the utility container
-just shell
-
-# Stop all services
-just down
-
-# Run Django management commands
-just manage [command]
+just up              # Start services
+just down            # Stop services
+just migrate         # Run migrations
+just makemigrations  # Create migrations
+just test            # Run tests
+just shell           # Open utility shell
+just manage [cmd]    # Run Django commands
 ```
 
-Using Docker Compose directly:
+### Code Quality
+
+Setup pre-commit hooks:
 ```bash
-# Start services
-docker compose up
-
-# Run migrations
-docker compose run --rm utility python -m manage migrate
-
-# Run tests
-docker compose run --rm utility python -m pytest
-
-# Stop services
-docker compose down
-```
-
-### Setting up pre-commit
-
-This project uses pre-commit hooks to maintain code quality. The hooks include:
-- Basic file checks (merge conflicts, yaml validity)
-- Ruff for Python linting and formatting
-- Django upgrade checks for modern Django practices
-
-```bash
-# Install pre-commit
 pip install pre-commit
-
-# Install the git hooks
 pre-commit install
-
-## Project Config Files
-
-| File | Purpose | Should be in git? |
-|------|---------|------------------|
-| `compose.yml` | Primary Docker Compose configuration that defines core services (web, db, utility) and works across all environments | ✅ Yes |
-| `compose.override.yml` | Local development-specific Docker settings including volume mounts and port mappings | ❌ No |
-| `requirements.in` | Direct Python package dependencies without version pins, listing only directly needed packages | ✅ Yes |
-| `requirements.txt` | Automatically compiled Python dependencies with locked versions - never edit this file manually | ✅ Yes |
-| `Dockerfile` | Instructions for building the project's Python-based Docker image and installing dependencies | ✅ Yes |
-| `.env` | Environment-specific configuration values and secrets like API keys and database credentials | ❌ No |
-| `.env-dist` | Template for environment variables that serves as an example for creating your local .env file | ✅ Yes |
-| `.gitignore` | Specifies which files Git should ignore to prevent committing sensitive data and generated files | ✅ Yes |
-| `.dockerignore` | Specifies which files should be excluded when building Docker images to keep them lean | ✅ Yes |
-| `justfile` | Collection of shortcut commands for common development operations like building and testing | ✅ Yes |
-| `config/` | Core Django project configuration including settings and root URL configuration | ✅ Yes |
-
-## Adding Dependencies
-
-1. Add new dependencies to `requirements.in`
-2. Compile new requirements:
-```bash
-just lock
 ```
-3. Rebuild the Docker images:
-```bash
-just build
-```
+
+Includes:
+- Basic file checks
+- Ruff for Python linting/formatting
+- Django upgrade checks
+
+### Dependencies
+
+Add new packages:
+1. Add to `requirements.in`
+2. Run `just lock`
+3. Run `just build`
 
 ## Deployment
 
-[To be added once deployment strategy is finalized]
+The project deploys to Fly.io using GitHub Actions for CI/CD.
+
+### Initial Setup
+
+1. Install and authenticate Fly CLI:
+```bash
+brew install flyctl
+fly auth login
+```
+
+2. Create Fly.io app:
+```bash
+fly launch
+```
+
+3. Set up secrets:
+```bash
+fly secrets set SECRET_KEY="your-django-secret-key" DEBUG="False"
+```
+
+### CI/CD Setup
+
+1. Create deployment token:
+```bash
+fly tokens create deploy -x 999999h
+```
+
+2. Add token to GitHub:
+   - Repository Settings → Secrets → Actions
+   - Create `FLY_API_TOKEN` with token value
+
+The GitHub Action will automatically deploy main branch changes to Fly.io.
+
+### Deployment Commands
+
+```bash
+fly deploy            # Manual deploy
+fly status           # Check app status
+fly logs             # View logs
+fly scale show       # View resources
+fly postgres connect # Access database
+```
+
+## Project Files
+
+| File | Purpose | In Git? |
+|------|---------|---------|
+| `compose.yml` | Main Docker Compose config | ✅ |
+| `compose.override.yml` | Local Docker overrides | ❌ |
+| `requirements.in` | Direct dependencies | ✅ |
+| `requirements.txt` | Locked dependencies | ✅ |
+| `Dockerfile` | Production build config | ✅ |
+| `Dockerfile.dev` | Development build config | ✅ |
+| `.env` | Environment variables | ❌ |
+| `.env-dist` | Environment template | ✅ |
+| `fly.toml` | Fly.io configuration | ✅ |
+| `.github/workflows/deploy.yml` | CI/CD configuration | ✅ |
+
+## Security
+
+- Never commit `.env` files or secrets
+- Use `fly secrets` for production values
+- Check the `.gitignore` file for excluded patterns
 
 ## Contributing
 
 Feel free to fork the repo for your own purposes!
-
-## Security
-
-Never commit `.env` files or sensitive data. The `.gitignore` file is set up to help prevent this, but always double-check your commits.

@@ -1,0 +1,34 @@
+# fly.toml app configuration file generated for resolutions on 2024-12-19T15:45:04-08:00
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = 'resolutions'
+console_command = '/code/manage.py shell'
+primary_region = 'sea'
+
+[build]
+dockerfile = "Dockerfile"
+
+[deploy]
+release_command = 'python manage.py migrate --noinput'
+
+[env]
+PORT = '8000'
+
+[http_service]
+auto_start_machines = true
+auto_stop_machines = 'stop'
+force_https = true
+internal_port = 8000
+min_machines_running = 0
+processes = ['app']
+
+[[statics]]
+guest_path = '/code/static'
+url_prefix = '/static/'
+
+[[vm]]
+cpu_kind = 'shared'
+cpus = 1
+memory = '1gb'
